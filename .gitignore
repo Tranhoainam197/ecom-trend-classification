@@ -1,7 +1,9 @@
-# Python
+# Python cấu hình mặc định
 __pycache__/
 *.pyc
 *.pyo
+
+# Môi trường ảo (Virtual Environment)
 venv/
 .venv/
 env/
@@ -9,11 +11,13 @@ env/
 # Chrome profile khi crawl
 .chrome_profile/
 
-# Dữ liệu lớn (tùy chọn bỏ comment nếu không muốn commit data thô)
-# data/raw/
-# data/visualizations/
+# CHẶN TOÀN BỘ THƯ MỤC DATA VÀ FILE LỚN (Đã sửa lại để chặn triệt để)
+data/
+*.pkl
+*.h5
+*.pt
 
-# OS / Editor
+# Hệ điều hành / Code Editor
 .DS_Store
 .vscode/
 .idea/
