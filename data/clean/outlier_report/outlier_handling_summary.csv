@@ -1,6 +1,0 @@
-﻿step,records_before,records_after,records_removed,removal_rate_pct,detail
-Outlier giá,21853,21744,109,0.5,"giữ [1,000, 13,400,000] VNĐ (percentile 99.5%)"
-Outlier số lượng bán,21744,21530,214,0.98,"loại quantity_sold > 70,000 (percentile 99.0%)"
-Outlier discount,21530,21479,51,0.24,loại discount_rate > 80%
-Outlier rating,21479,21479,0,0.0,loại rating_average = 0
-Outlier num_reviews,21479,21295,184,0.86,"drop review > min(percentile 99.7%, sold×1.0)"
