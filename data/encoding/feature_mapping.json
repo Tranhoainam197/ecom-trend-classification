@@ -1,0 +1,48 @@
+{
+  "categorical_features": {
+    "popularity_category": [
+      "Hot",
+      "Low",
+      "Normal",
+      "Trending",
+      "Viral"
+    ],
+    "price_segment": [
+      "Budget",
+      "Economy",
+      "Mid-Range",
+      "Premium"
+    ],
+    "quality_tier": [
+      "Average",
+      "Good",
+      "High",
+      "Low",
+      "Premium"
+    ],
+    "discount_intensity": [
+      "Aggressive",
+      "Heavy",
+      "Mild",
+      "Moderate",
+      "No Discount"
+    ],
+    "product_age": [
+      "Brand New"
+    ]
+  },
+  "label_encoding": {
+    "Best Deal": 0,
+    "Best Seller": 1,
+    "Hot Trend": 2,
+    "Normal": 3
+  },
+  "non_feature_columns": [
+    "id",
+    "crawl_date",
+    "seed_label",
+    "label_source",
+    "label",
+    "label_encoded"
+  ]
+}

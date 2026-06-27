@@ -1,0 +1,21 @@
+======================================================================
+BÁO CÁO CHẤT LƯỢNG ENCODING
+======================================================================
+
+Train records: 17,036
+Test records : 4,259
+Tổng input feature: 44
+  - Numerical (scaled)  : 20
+  - Categorical (one-hot): 24
+
+Phân bố nhãn (Train):
+  Normal: 6,941 (40.7%)
+  Hot Trend: 4,268 (25.1%)
+  Best Deal: 4,120 (24.2%)
+  Best Seller: 1,707 (10.0%)
+
+Phân bố nhãn (Test):
+  Normal: 1,735 (40.7%)
+  Hot Trend: 1,067 (25.1%)
+  Best Deal: 1,030 (24.2%)
+  Best Seller: 427 (10.0%)

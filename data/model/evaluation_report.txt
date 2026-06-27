@@ -1,0 +1,43 @@
+======================================================================
+BÁO CÁO ĐÁNH GIÁ MÔ HÌNH PHÂN LOẠI SẢN PHẨM
+======================================================================
+
+GHI CHÚ VỀ LABEL LEAKAGE:
+Bộ feature 'full' chứa các composite score (popularity_score,
+engagement_score, trend_momentum, value_score, deal_quality_score)
+đã được dùng để TẠO RA nhãn ở bước Labeling. Vì vậy kết quả trên
+bộ 'full' chỉ mang tính minh họa hiện tượng label leakage, KHÔNG
+nên dùng để đánh giá khả năng phân loại thực sự của mô hình.
+
+Bộ feature 'realistic' đã loại bỏ các score này, phản ánh đúng
+tình huống thực tế: dự đoán nhãn cho 1 sản phẩm mới khi chỉ có
+dữ liệu thô (giá, rating, số lượng bán, review...).
+
+======================================================================
+BẢNG SO SÁNH TỔNG HỢP
+======================================================================
+feature_set               model  accuracy  precision_macro  recall_macro  f1_macro  train_time_sec
+       full       Random Forest    0.9927           0.9935        0.9941    0.9938           1.164
+       full       Decision Tree    0.9904           0.9916        0.9926    0.9921           0.071
+       full Logistic Regression    0.9509           0.9323        0.9385    0.9352           0.682
+       full                 KNN    0.8948           0.8485        0.8695    0.8567           0.000
+       full         Naive Bayes    0.8194           0.8164        0.8470    0.7943           0.020
+  realistic       Decision Tree    0.9667           0.9566        0.9560    0.9563           0.112
+  realistic       Random Forest    0.9660           0.9469        0.9579    0.9521           1.133
+  realistic Logistic Regression    0.9408           0.9142        0.9281    0.9204           0.564
+  realistic                 KNN    0.8981           0.8522        0.8740    0.8607           0.011
+  realistic         Naive Bayes    0.8267           0.8217        0.8486    0.7987           0.004
+
+======================================================================
+CHI TIẾT MÔ HÌNH TỐT NHẤT (bộ Realistic): Decision Tree
+======================================================================
+              precision    recall  f1-score   support
+
+   Best Deal       0.97      0.97      0.97      1030
+ Best Seller       0.90      0.90      0.90       427
+   Hot Trend       0.99      0.99      0.99      1067
+      Normal       0.97      0.97      0.97      1735
+
+    accuracy                           0.97      4259
+   macro avg       0.96      0.96      0.96      4259
+weighted avg       0.97      0.97      0.97      4259
