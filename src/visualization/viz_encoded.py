@@ -73,7 +73,8 @@ def visualize_encoded_data(train_file: str, test_file: str, output_dir: str):
 
     # 3. Phân bố vài scaled feature quan trọng
     key_scaled = [c for c in ("popularity_score_scaled", "engagement_score_scaled",
-                              "value_score_scaled", "deal_quality_score_scaled") if c in df_train.columns]
+                          "trend_momentum_scaled",
+                          "value_score_scaled", "deal_quality_score_scaled") if c in df_train.columns]
     if key_scaled:
         fig, axes = plt.subplots(1, len(key_scaled), figsize=(5 * len(key_scaled), 4))
         if len(key_scaled) == 1:
