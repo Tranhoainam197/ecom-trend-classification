@@ -17,7 +17,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspa
 import pandas as pd
 import matplotlib.pyplot as plt
 import config
-from src.normalization.normalize_features import NON_FEATURE_COLUMNS
+
+# Lấy từ config.py (nguồn DUY NHẤT) + target columns, thay vì import list
+# thiếu platform/category/brand/product_name từ normalize_features.py như
+# bản cũ — bug đó khiến biểu đồ "02_feature_types.png" (Hình 7.2 trong báo
+# cáo) hiển thị sai "24 categorical" thay vì đúng "20 categorical" (44 thay
+# vì 40 tổng feature), không khớp với số 40 feature thực sự đưa vào Chương 8.
+NON_FEATURE_COLUMNS = config.NON_FEATURE_COLUMNS + config.TARGET_COLUMNS
 
 plt.rcParams["font.family"] = "DejaVu Sans"
 plt.rcParams["axes.unicode_minus"] = False
@@ -36,7 +42,7 @@ def visualize_encoded_data(train_file: str, test_file: str, output_dir: str):
         df_test = pd.DataFrame(json.load(f))
     print(f"Train: {len(df_train):,} | Test: {len(df_test):,}")
 
-    feature_cols = [c for c in df_train.columns if c not in NON_FEATURE_COLUMNS + ["label", "label_encoded"]]
+    feature_cols = [c for c in df_train.columns if c not in NON_FEATURE_COLUMNS]
     print(f"Tổng input feature: {len(feature_cols)}")
 
     # 1. Phân bố nhãn train vs test

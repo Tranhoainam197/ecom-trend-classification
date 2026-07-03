@@ -72,6 +72,29 @@ BEST_MODEL_FILE = os.path.join(MODEL_DIR, "best_model.pkl")
 EVALUATION_REPORT_FILE = os.path.join(MODEL_DIR, "evaluation_report.txt")
 
 # =============================================================================
+# FEATURE COLUMN GROUPS — nguồn DUY NHẤT dùng xuyên suốt Normalization ->
+# Encoding -> Modeling -> Visualization, để tránh tình trạng mỗi module tự
+# định nghĩa một list "cột không phải feature" khác nhau (từng gây lệch số
+# liệu: encode_data.py/viz_encoded.py trước đây đếm nhầm 44 feature thay vì
+# 40, do thiếu platform/category/brand/product_name trong danh sách loại trừ).
+# =============================================================================
+
+# Cột định danh / metadata — KHÔNG bao giờ là input feature của mô hình,
+# ở bất kỳ giai đoạn nào (Normalization, Encoding, Modeling, Visualization).
+METADATA_COLUMNS = ["id", "crawl_date", "platform", "category", "brand", "product_name"]
+
+# Cột phụ trợ sinh ra trong quá trình labeling (không phải feature đầu vào,
+# không phải nhãn cuối cùng — chỉ để truy vết nguồn gốc nhãn).
+LABEL_AUX_COLUMNS = ["seed_label", "label_source"]
+
+# Cột nhãn / nhãn đã mã hóa — dùng làm TARGET (y), không phải input feature (X).
+TARGET_COLUMNS = ["label", "label_encoded"]
+
+# Toàn bộ cột KHÔNG phải input feature của mô hình (metadata + label_aux).
+# feature_selector.py cộng thêm TARGET_COLUMNS khi cần loại luôn cả nhãn.
+NON_FEATURE_COLUMNS = METADATA_COLUMNS + LABEL_AUX_COLUMNS
+
+# =============================================================================
 # CRAWL SETTINGS
 # =============================================================================
 MAX_PAGES = 20

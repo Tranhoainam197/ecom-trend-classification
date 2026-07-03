@@ -35,6 +35,28 @@ def _clean_price_for_viz(price_str):
         return None
 
 
+def _add_bar_labels(ax, bars, fmt="{:,.0f}"):
+    """Ghi số liệu lên đầu mỗi cột của bar chart (trục dọc)."""
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(
+            bar.get_x() + bar.get_width() / 2, height,
+            fmt.format(height),
+            ha="center", va="bottom", fontsize=9, fontweight="bold",
+        )
+
+
+def _add_barh_labels(ax, bars, fmt="{:,.0f}"):
+    """Ghi số liệu ở cuối mỗi cột của bar chart ngang (barh)."""
+    for bar in bars:
+        width = bar.get_width()
+        ax.text(
+            width, bar.get_y() + bar.get_height() / 2,
+            f" {fmt.format(width)}",
+            ha="left", va="center", fontsize=8, fontweight="bold",
+        )
+
+
 def visualize_raw_data(input_file: str, output_dir: str):
     print("=" * 70)
     print("TRỰC QUAN HÓA DỮ LIỆU THÔ (trước Cleaning)")
@@ -52,9 +74,11 @@ def visualize_raw_data(input_file: str, output_dir: str):
     null_pct = (df.isnull().sum() / len(df) * 100).sort_values(ascending=False)
     fig, ax = plt.subplots(figsize=(12, 7))
     colors = ["#ff6b6b" if v > 50 else "#ffd93d" if v > 20 else "#6bcf7f" for v in null_pct]
-    ax.barh(null_pct.index, null_pct.values, color=colors)
+    bars = ax.barh(null_pct.index, null_pct.values, color=colors)
+    _add_barh_labels(ax, bars, fmt="{:.1f}%")
     ax.set_xlabel("Phần trăm giá trị NULL (%)")
     ax.set_title("Tỷ lệ giá trị NULL theo từng trường dữ liệu thô", fontweight="bold")
+    ax.set_xlim(0, max(null_pct.max() * 1.15, 10))
     ax.grid(axis="x", alpha=0.3)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "01_null_values.png"), dpi=200, bbox_inches="tight")
@@ -65,9 +89,12 @@ def visualize_raw_data(input_file: str, output_dir: str):
     fig, axes = plt.subplots(1, 2, figsize=(14, 5))
     axes[0].pie(platform_counts.values, labels=platform_counts.index, autopct="%1.1f%%", startangle=90)
     axes[0].set_title("Phân bố theo Platform", fontweight="bold")
-    axes[1].bar(platform_counts.index, platform_counts.values, color=["#FF6B6B", "#4ECDC4", "#45B7D1"])
+    bars = axes[1].bar(platform_counts.index, platform_counts.values,
+                        color=["#FF6B6B", "#4ECDC4", "#45B7D1"])
+    _add_bar_labels(axes[1], bars)
     axes[1].set_ylabel("Số lượng sản phẩm")
     axes[1].set_title("Số lượng sản phẩm theo Platform", fontweight="bold")
+    axes[1].set_ylim(0, platform_counts.max() * 1.15)
     axes[1].grid(axis="y", alpha=0.3)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "02_platform_distribution.png"), dpi=200, bbox_inches="tight")
@@ -76,9 +103,11 @@ def visualize_raw_data(input_file: str, output_dir: str):
     # 3. Top category
     top_categories = df["category_name"].value_counts().head(15)
     fig, ax = plt.subplots(figsize=(12, 7))
-    ax.barh(top_categories.index[::-1], top_categories.values[::-1], color="steelblue")
+    bars = ax.barh(top_categories.index[::-1], top_categories.values[::-1], color="steelblue")
+    _add_barh_labels(ax, bars)
     ax.set_xlabel("Số lượng sản phẩm")
     ax.set_title("Top 15 danh mục sản phẩm phổ biến nhất", fontweight="bold")
+    ax.set_xlim(0, top_categories.max() * 1.15)
     ax.grid(axis="x", alpha=0.3)
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "03_category_distribution.png"), dpi=200, bbox_inches="tight")

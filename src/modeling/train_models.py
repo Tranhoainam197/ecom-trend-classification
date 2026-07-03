@@ -13,10 +13,12 @@ Các thuật toán dùng (phổ biến trong môn Khai thác Dữ liệu):
     - K-Nearest Neighbors (KNN)
     - Naive Bayes (GaussianNB)
 
-Mỗi thuật toán được train trên 2 bộ feature (xem feature_selector.py):
-    - "full"      : đầy đủ feature, bao gồm composite score (CÓ label leakage)
-    - "realistic" : đã loại composite score (KHÔNG leakage, phản ánh đúng
-                     khả năng áp dụng thực tế cho sản phẩm mới)
+Mỗi thuật toán được train trên 3 bộ feature (xem feature_selector.py):
+    - "full"              : đầy đủ feature, bao gồm composite score (CÓ label leakage)
+    - "realistic"         : đã loại composite score (KHÔNG leakage numeric,
+                             phản ánh đúng khả năng áp dụng thực tế cho sản phẩm mới)
+    - "realistic_strict"  : loại thêm cả categorical dùng trực tiếp trong luật
+                             gán nhãn — dùng để kiểm chứng mức leakage còn lại
 
 Chạy: python -m src.modeling.train_models
 """
@@ -49,6 +51,11 @@ MODEL_REGISTRY = {
     "KNN": lambda: KNeighborsClassifier(n_neighbors=15, n_jobs=-1),
     "Naive Bayes": lambda: GaussianNB(),
 }
+
+# Thứ tự train các bộ feature. "realistic_strict" chỉ dùng để đối chiếu/kiểm
+# chứng leakage, KHÔNG phải kết quả chính của báo cáo (kết quả chính vẫn là
+# "realistic"), nên đặt cuối cùng.
+FEATURE_SET_ORDER = ("realistic", "full", "realistic_strict")
 
 
 def _load_train_test(train_file: str, test_file: str):
@@ -102,7 +109,7 @@ def train_all_models(train_file: str, test_file: str, feature_set_name: str = "r
 
 
 def run_training(train_file: str, test_file: str, output_dir: str):
-    """Train trên cả 2 bộ feature (full và realistic), lưu toàn bộ model đã train."""
+    """Train trên cả 3 bộ feature (realistic, full, realistic_strict), lưu toàn bộ model đã train."""
     print("=" * 70)
     print("BƯỚC 6a: MODELING - TRAIN MÔ HÌNH PHÂN LOẠI")
     print("=" * 70)
@@ -110,7 +117,7 @@ def run_training(train_file: str, test_file: str, output_dir: str):
     os.makedirs(output_dir, exist_ok=True)
     all_results = {}
 
-    for feature_set_name in ("realistic", "full"):
+    for feature_set_name in FEATURE_SET_ORDER:
         print(f"\n{'─' * 70}")
         print(f"BỘ FEATURE: {feature_set_name.upper()}")
         print("─" * 70)

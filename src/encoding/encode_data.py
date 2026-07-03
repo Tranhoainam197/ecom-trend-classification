@@ -38,11 +38,16 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 
 import config
-from src.normalization.normalize_features import NON_FEATURE_COLUMNS
 
 CATEGORICAL_FEATURES = [
     "popularity_category", "price_segment", "quality_tier", "discount_intensity", "product_age",
 ]
+
+# Cột không phải feature đầu vào — lấy từ config.py (nguồn DUY NHẤT), cộng
+# thêm target column, để đếm/báo cáo số feature nhất quán với feature_selector.py
+# (bug cũ: dùng list thiếu platform/category/brand/product_name -> đếm nhầm
+# 44 feature "20 scaled + 24 one-hot" thay vì đúng 40 "20 scaled + 20 one-hot").
+NON_FEATURE_COLUMNS = config.NON_FEATURE_COLUMNS + config.TARGET_COLUMNS
 
 
 def _one_hot_encode(df_train: pd.DataFrame, df_test: pd.DataFrame, categorical_cols: list[str]):
@@ -115,7 +120,7 @@ def encode_data(train_file: str, test_file: str):
     feature_mapping = {
         "categorical_features": train_categories,
         "label_encoding": {str(k): v for k, v in label_mapping.items()},
-        "non_feature_columns": NON_FEATURE_COLUMNS + ["label", "label_encoded"],
+        "non_feature_columns": NON_FEATURE_COLUMNS,
     }
     with open(config.FEATURE_MAPPING_FILE, "w", encoding="utf-8") as f:
         json.dump(feature_mapping, f, ensure_ascii=False, indent=2)
@@ -133,7 +138,7 @@ def _print_summary(df_train: pd.DataFrame, df_test: pd.DataFrame, label_mapping:
     print("\n" + "=" * 70)
     print("THỐNG KÊ ENCODING")
     print("=" * 70)
-    feature_cols = [c for c in df_train.columns if c not in NON_FEATURE_COLUMNS + ["label", "label_encoded"]]
+    feature_cols = [c for c in df_train.columns if c not in NON_FEATURE_COLUMNS]
     print(f"Tổng số input feature cho mô hình: {len(feature_cols)}")
     print(f"Train: {len(df_train):,} | Test: {len(df_test):,}")
 

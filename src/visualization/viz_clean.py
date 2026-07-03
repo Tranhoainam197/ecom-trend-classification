@@ -22,6 +22,28 @@ plt.rcParams["font.family"] = "DejaVu Sans"
 plt.rcParams["axes.unicode_minus"] = False
 
 
+def _add_bar_labels(ax, bars, fmt="{:,.0f}"):
+    """Ghi số liệu lên đầu mỗi cột của bar chart (trục dọc)."""
+    for bar in bars:
+        height = bar.get_height()
+        ax.text(
+            bar.get_x() + bar.get_width() / 2, height,
+            fmt.format(height),
+            ha="center", va="bottom", fontsize=9, fontweight="bold",
+        )
+
+
+def _add_barh_labels(ax, bars, fmt="{:,.0f}"):
+    """Ghi số liệu ở cuối mỗi cột của bar chart ngang (barh)."""
+    for bar in bars:
+        width = bar.get_width()
+        ax.text(
+            width, bar.get_y() + bar.get_height() / 2,
+            f" {fmt.format(width)}",
+            ha="left", va="center", fontsize=8, fontweight="bold",
+        )
+
+
 def visualize_clean_data(input_file: str, output_dir: str):
     print("=" * 70)
     print("TRỰC QUAN HÓA DỮ LIỆU SAU CLEANING")
@@ -40,7 +62,9 @@ def visualize_clean_data(input_file: str, output_dir: str):
     axes[0].pie(platform_counts.values, labels=platform_counts.index, autopct="%1.1f%%",
                colors=["#FF6B6B", "#4ECDC4", "#45B7D1"], startangle=90)
     axes[0].set_title("Phân bố theo Platform (sau Cleaning)", fontweight="bold")
-    axes[1].bar(platform_counts.index, platform_counts.values, color=["#FF6B6B", "#4ECDC4", "#45B7D1"])
+    bars = axes[1].bar(platform_counts.index, platform_counts.values, color=["#FF6B6B", "#4ECDC4", "#45B7D1"])
+    _add_bar_labels(axes[1], bars)
+    axes[1].set_ylim(0, platform_counts.max() * 1.15)
     axes[1].grid(axis="y", alpha=0.3)
     axes[1].set_title("Số lượng theo Platform", fontweight="bold")
     plt.tight_layout()
@@ -83,10 +107,14 @@ def visualize_clean_data(input_file: str, output_dir: str):
     # 5. Category & Brand
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
     top_cat = df["category"].value_counts().head(10)
-    axes[0].barh(top_cat.index[::-1], top_cat.values[::-1], color="teal")
+    bars0 = axes[0].barh(top_cat.index[::-1], top_cat.values[::-1], color="teal")
+    _add_barh_labels(axes[0], bars0)
+    axes[0].set_xlim(0, top_cat.max() * 1.15)
     axes[0].set_title("Top 10 Category", fontweight="bold")
     top_brand = df[df["brand"] != "No Brand"]["brand"].value_counts().head(10)
-    axes[1].barh(top_brand.index[::-1], top_brand.values[::-1], color="indianred")
+    bars1 = axes[1].barh(top_brand.index[::-1], top_brand.values[::-1], color="indianred")
+    _add_barh_labels(axes[1], bars1)
+    axes[1].set_xlim(0, top_brand.max() * 1.15)
     axes[1].set_title("Top 10 Brand (loại trừ 'No Brand')", fontweight="bold")
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, "05_category_brand.png"), dpi=200, bbox_inches="tight")
@@ -113,7 +141,9 @@ def visualize_clean_data(input_file: str, output_dir: str):
     # 7. Seller location (minh chứng cột seller_location đã được Cleaning fill missing value)
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
     top_location = df["seller_location"].value_counts().head(10)
-    axes[0].barh(top_location.index[::-1], top_location.values[::-1], color="darkcyan")
+    bars = axes[0].barh(top_location.index[::-1], top_location.values[::-1], color="darkcyan")
+    _add_barh_labels(axes[0], bars)
+    axes[0].set_xlim(0, top_location.max() * 1.15)
     axes[0].set_title("Top 10 khu vực người bán (seller_location)", fontweight="bold")
     axes[0].set_xlabel("Số lượng sản phẩm")
 

@@ -52,7 +52,11 @@ NUMERICAL_FEATURES = [
 
 # Các cột không phải feature đầu vào mô hình (metadata, nhãn, cột phụ trợ
 # sinh ra trong quá trình labeling) — không tham gia normalization/encoding.
-NON_FEATURE_COLUMNS = ["id", "crawl_date", "seed_label", "label_source"]
+# Re-export từ config.py (nguồn DUY NHẤT) để encode_data.py / viz_encoded.py
+# import lại mà không bị lệch danh sách giữa các module (bug cũ đã sửa: trước
+# đây list này thiếu platform/category/brand/product_name, khiến bước Encoding
+# đếm nhầm 44 feature thay vì đúng 40 feature thực sự đưa vào mô hình).
+NON_FEATURE_COLUMNS = config.NON_FEATURE_COLUMNS
 
 
 def normalize_features(input_file: str, test_size: float = 0.2, random_state: int = 42):

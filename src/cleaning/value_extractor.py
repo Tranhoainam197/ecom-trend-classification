@@ -7,7 +7,7 @@ Thuộc bước 1 - CLEANING.
 Dữ liệu thô từ 3 sàn TMĐT có format không đồng nhất, ví dụ:
     - Giá: "499.000 ₫", 499000, "499000"
     - Discount: "17% Off", 17, "17"
-    - Số lượng bán: "1.2k đã bán", "1.2K Sold", 1200
+    - Số lượng bán: "1.2k đã bán", "1.2K Sold", 1200, "1.234.567" (nghìn)
 """
 
 import re
@@ -39,7 +39,13 @@ def extract_discount_rate(value) -> float | None:
 def extract_quantity_sold(text) -> int | None:
     """
     Trích xuất số lượng bán dạng số từ text hiển thị.
-    Ví dụ: '1.2K Sold' -> 1200, '3M' -> 3000000
+    Ví dụ: '1.2K Sold' -> 1200, '3M' -> 3000000, '1.234.567' -> 1234567.
+
+    Lưu ý xử lý dấu chấm 2 nghĩa khác nhau:
+    - Có hậu tố K/M/B (vd "1.8K")  -> dấu chấm là NGĂN CÁCH THẬP PHÂN.
+    - Không có hậu tố, có >=2 dấu chấm (vd "1.234.567") -> dấu chấm là
+      NGĂN CÁCH HÀNG NGHÌN kiểu Việt Nam, phải bỏ hết trước khi ép kiểu số,
+      nếu không float() sẽ ném ValueError và làm crash toàn bộ pipeline.
     """
     if text is None or (isinstance(text, float) and pd.isna(text)):
         return None
@@ -51,8 +57,16 @@ def extract_quantity_sold(text) -> int | None:
     if not match:
         return None
 
-    value = float(match.group(1))
-    unit = match.group(2)
+    number_part, unit = match.group(1), match.group(2)
+
+    if number_part.count(".") >= 2 and not unit:
+        number_part = number_part.replace(".", "")
+
+    try:
+        value = float(number_part)
+    except ValueError:
+        return None
+
     multiplier = {"K": 1_000, "M": 1_000_000, "B": 1_000_000_000}.get(unit, 1)
     return int(value * multiplier)
 
