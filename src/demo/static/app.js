@@ -14,10 +14,10 @@ const state = {
 };
 
 const LABEL_META = {
-  "Hot Trend":   { icon: "🔥", color: "var(--c-hot)" },
+  "Hot Trend": { icon: "🔥", color: "var(--c-hot)" },
   "Best Seller": { icon: "🏆", color: "var(--c-seller)" },
-  "Best Deal":   { icon: "💰", color: "var(--c-deal)" },
-  "Normal":      { icon: "📦", color: "var(--c-normal)" },
+  "Best Deal": { icon: "💰", color: "var(--c-deal)" },
+  "Normal": { icon: "📦", color: "var(--c-normal)" },
 };
 
 function labelMeta(label) {
@@ -372,13 +372,6 @@ function renderCompare(main) {
           `).join("")}
         </tbody>
       </table>
-      <p class="note">
-        Bộ <strong>full</strong> chứa các composite score (popularity_score, engagement_score,
-        trend_momentum, value_score, deal_quality_score) — vốn được DÙNG ĐỂ TẠO ra nhãn ở bước
-        Labeling — nên accuracy cao một cách <strong>giả tạo</strong> (label leakage), không phản
-        ánh khả năng phân loại thực sự. Bộ <strong>realistic</strong> đã loại các score này, phản
-        ánh đúng tình huống dự đoán cho 1 sản phẩm mới — đây là kết quả chính của đồ án.
-      </p>
     </div>
   `;
 }
