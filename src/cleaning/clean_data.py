@@ -67,9 +67,40 @@ def _clean_numeric_fields(df: pd.DataFrame) -> pd.DataFrame:
     df["discount_rate"] = df["discount_rate"].apply(extract_discount_rate)
     df["rating_average"] = df["rating_average"].apply(safe_to_numeric)
     df["num_reviews"] = df["num_reviews"].apply(safe_to_numeric)
-    df["quantity_sold"] = df["quantity_sold_text"].apply(
+
+    # BUG ĐÃ SỬA (quan trọng): trước đây cột 'quantity_sold' (đã được map từ
+    # 'quantity_sold_value' - giá trị SỐ có sẵn từ crawler - ở bước
+    # normalize_dataset) bị GHI ĐÈ hoàn toàn bằng kết quả parse riêng từ
+    # 'quantity_sold_text'. Với 1,391 record có quantity_sold_value hợp lệ
+    # nhưng quantity_sold_text lại rỗng/thiếu (kiểm chứng trên data thực tế),
+    # việc ghi đè này biến quantity_sold từ "có giá trị" thành None một cách
+    # oan uổng -> các record đó bị drop nhầm ở bước _handle_missing_values
+    # (quantity_sold nằm trong CRITICAL_COLUMNS) dù dữ liệu gốc đã đủ.
+    # Sửa: ưu tiên dùng quantity_sold_value (số, đáng tin cậy hơn) đã có sẵn,
+    # CHỈ parse từ quantity_sold_text khi giá trị số bị thiếu.
+    quantity_sold_numeric = df["quantity_sold"].apply(safe_to_numeric)
+    quantity_sold_from_text = df["quantity_sold_text"].apply(
         lambda x: extract_quantity_sold(x) if isinstance(x, str) else None
     )
+    df["quantity_sold"] = quantity_sold_numeric.where(
+        quantity_sold_numeric.notna(), quantity_sold_from_text
+    )
+
+    # BUG ĐÃ SỬA (quan trọng): thang rating hiển thị trên Shopee/Lazada/Tiki là
+    # 1-5 sao. Giá trị "0" trả về từ crawler KHÔNG phải là "0 sao thực sự" mà
+    # là placeholder mặc định của sản phẩm CHƯA CÓ đánh giá nào (num_reviews=0)
+    # -- kiểm chứng trên data thực tế: 9,943/9,951 record rating_average=0 có
+    # num_reviews=0 đi kèm. Nếu không xử lý ở đây, rating_average=0 sẽ KHÔNG bị
+    # coi là missing (0 không phải NaN) nên "lọt" qua bước drop critical columns
+    # bên dưới, rồi bị clip(1, 5) biến thành 1.0 -- tức là hô biến "chưa có
+    # đánh giá" thành "đánh giá tệ nhất có thể", làm sai lệch ~18% dữ liệu
+    # (3,888/21,295 record trong lần chạy thử) và mọi feature/label phụ thuộc
+    # rating (quality_tier, popularity_score, engagement_score, value_score,
+    # deal_quality_score...). Ép về NaN ở đây để nó được xử lý nhất quán như
+    # "thiếu rating_average" -> bị drop ở _handle_missing_values (đúng như
+    # comment đã ghi ở đó), và outlier_handler.handle_rating() (vốn có nhiệm
+    # vụ loại rating_average=0) không còn là no-op vô nghĩa.
+    df["rating_average"] = df["rating_average"].replace(0, np.nan)
     return df
 
 
